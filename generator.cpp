@@ -1,7 +1,7 @@
 /*
     A Automatic Demonstrator written in Prolog
     Copyright (C) <2022  David Emmanuel Lopez
-    http://www.github.com/davidemmanuellopez/demuba3
+    http://www.github.com/davidemmanuellopez/iscas85_formula_generator
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
