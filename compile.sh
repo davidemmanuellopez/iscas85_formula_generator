@@ -1,2 +1,2 @@
 g++ generator.cpp -o generator
-g++ spaces.cpp -o espacios
+g++ spaces.cpp -o spaces
