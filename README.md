@@ -16,3 +16,7 @@ A C++ utility for generate propositional non-clausal fórmulas, using iscas85 ci
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+## Use
+
+First, compile de utilities with compile.sh, or compile with command line the two single sources.
