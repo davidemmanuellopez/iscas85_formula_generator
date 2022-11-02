@@ -27,6 +27,8 @@ A C++ utility for generate propositional non-clausal fórmulas, using iscas85 ci
 
 The script takes the test case passed as argment and assume the existence of "./iscas85/[test_case]". Then, perform a preproccesing thats remove spaces and creates [test_case].clean file. This file is used to generate formulas in directory "./tests/[test_case]/". The formulas are not uploaded because the size can be in MB.
 
+The generator will create one formula per circuit output, then a iscas85 test case creates a set of formulas.
+
 ## Fórmula format
 
 * Each proposional variable have "p" preffix, and is identified by a integer number. Like p1, p2, p3, pi.
