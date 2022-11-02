@@ -1,5 +1,5 @@
 # ISCAS85_formula_generator
-A C++ utility for generate propositional non-clausal fórmulas, using iscas85 circuit specification.
+A C++ utility for generate propositional non-clausal fórmulas, using ISCAS85 circuit specification.
 
     Copyright (C) <2022  David Emmanuel Lopez
     http://www.github.com/davidemmanuellopez/iscas85_formula_generator
