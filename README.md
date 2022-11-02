@@ -19,7 +19,7 @@ A C++ utility for generate propositional non-clausal fórmulas, using ISCAS85 ci
 
 ## Goal
 
-The creation of this utility is intended for provide test cases for non-clausal SAT solvers, or non-clausal Automatic Demonstrators. The available test cases on SAT competitions or other sources are in clausal form (CNF, DNF). Thats dificult to test a non-clausal SAT solver, because a non-clausal form can allow algorithmic improvements that cannot be used in the input formula is always clausal. Also, a random formula generation does not represent the complexity of the problematique.
+The creation of this utility is intended for provide test cases for non-clausal SAT solvers, or non-clausal Automatic Demonstrators. The available test cases on SAT competitions or other sources are in clausal form (CNF, DNF). Thats dificult to test a non-clausal SAT solver, because a non-clausal form can allow algorithmic improvements that cannot be used in the input formula is always clausal. Also, a random formula generation does not represent the complexity of the problematique. The ISCAS85 cases represent combinational complexity on circuits, reference: https://www.davidkebo.com/documents/iscas85.pdf
 
 The utility was created by me for test Demuba3 Automatic Demonstrator, in https://github.com/davidemmanuellopez/demuba3. But can be used for any solver, only is need to use the same formula representation or modify the source code to generate formula with other nomenclature.
 
