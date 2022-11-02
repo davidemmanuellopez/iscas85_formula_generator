@@ -31,14 +31,13 @@ static set<Gate*> pisados;
 
 map<string,Gate*> mapa;
 static int prof =0;
+
 string reverseGet(map<string,Gate*> mapa, Gate* g)
 {
 	map<string,Gate*>::iterator it = mapa.begin();
-	
 	while (it->second!=g && it!=mapa.end()) it++;
 	return it->first;
 	};
-	
 	
 list<string> split(string input, string delimiter)
 {
@@ -60,9 +59,7 @@ class Gate
 	public:
 		virtual void convertir(ofstream &fsalida)
 		{};
-		
 	};
-
 
 class GateRec: public Gate
 {
@@ -71,24 +68,24 @@ class GateRec: public Gate
 	{
 		};
 };
+
 class Var: public Gate
 {
 	private:
 	string var;
-	
 	public:
 	
 		Var(string v)
 		{
 			var=v;
 			};
+            
 		void convertir(ofstream &fsalida)
 		{
 			fsalida << "p"<< var;
 			};
 	};
 
-	
 class Or: public GateRec
 {
 
@@ -96,7 +93,6 @@ class Or: public GateRec
 		list<Gate*> ors;
 			
 	public:
-	
 	void addGate(Gate* g)
 	{
 		ors.push_back(g);
@@ -104,15 +100,11 @@ class Or: public GateRec
 		
 	void convertir(ofstream &fsalida)
 	{
-//		cout << reverseGet(mapa,this) << endl;
 		if (pisados.find(this)==pisados.end())
 		{
 			cout << "pisados: " << pisados.size() << "/" << mapa.size() << endl;
 			pisados.insert(this);
-			} else
-			{
-	//			cout << "ciclo" << endl;
-				};
+			} 
 				
 		string salida;
 		list<Gate*>::iterator it = ors.begin();
@@ -128,8 +120,6 @@ class Or: public GateRec
 			prof--;
 			it++;
 			};
-		
-			//pisados.erase(this);
 	};
 			
 };
@@ -147,7 +137,6 @@ class NOr: public Or
 class And: public GateRec
 {
 	public:	
-
 	list<Gate*> ands;
 	void addGate(Gate* g)
 	{
@@ -156,15 +145,11 @@ class And: public GateRec
 	
 	void convertir(ofstream &fsalida)
 	{
-//		cout << reverseGet(mapa,this) << endl;
 				if (pisados.find(this)==pisados.end())
 		{
 			cout << "pisados: " << pisados.size() << "/" << mapa.size() << endl;
 			pisados.insert(this);
 			} else
-			{
-		//		cout << "ciclo" << endl;
-				};
 		
 		string salida;
 		list<Gate*>::iterator it = ands.begin();
@@ -183,7 +168,6 @@ class And: public GateRec
 			it++;
 			};
 	
-	//		pisados.erase(this);
 	};
 	
 };
@@ -201,7 +185,6 @@ class NAnd: public And
 class XOr: public GateRec
 {
 	public:
-	
 	list<Gate*> terms;
 	void addGate(Gate* g)
 	{
@@ -240,21 +223,17 @@ class Not: public Gate
 			};
 	void convertir(ofstream &fsalida)
 	{
-//		cout << reverseGet(mapa,this) << endl;
 		if (pisados.find(this)==pisados.end())
 		{
 			cout << "pisados: " << pisados.size() << "/" << mapa.size() << endl;
 			pisados.insert(this);
-			} else
-			{
-//				cout << "ciclo" << endl;
-				};
+			} 
+			
 		fsalida << "-(";
 		prof++;
 		g->convertir(fsalida);
 		prof--;
 		fsalida << ")";
-//		pisados.erase(this);
 	};
 
 };
@@ -262,9 +241,6 @@ class Not: public Gate
 
 int main(int argc, char* argv[])
 {
-
-	
-	
 	string entrada(argv[1]);
 	string salida(argv[2]);
 
@@ -280,7 +256,6 @@ int main(int argc, char* argv[])
 		{
 			int i = linea.find_first_of('(');
 			string id = linea.substr(i+1,linea.length()-i-2);
-//			cout << "id: " << id << endl;
 			Gate* g = new Var(id);
 			mapa.insert(pair<string,Gate*>(id,g));
 			} 
@@ -296,23 +271,18 @@ int main(int argc, char* argv[])
 			} else
 		//es gate
 		{
-//			cout << "es gate" << endl;
 			int p = linea.find_first_of('=');
 			string idGate = linea.substr(0,p);
-//			cout << "idgate:" << idGate << endl;
 			p=p+1;
 			int j = linea.find_first_of('(');
 			string gate = linea.substr(p,j-(p));
-//			cout << "gate:" << gate << endl;
 			p=j+1;
 			j=linea.length()-1;
 			
 			string recorte = linea.substr(p,j-p);
-//			cout << "recorte:" << linea.substr(p,j-p) << endl;
 			list<string> tokens = split(recorte,",");
 			
 			list<string>::iterator it = tokens.begin();
-//			cout << "tokens:" << endl;
 			Gate* g;
 			if (gate=="BUFF")
 			{
@@ -324,15 +294,11 @@ int main(int argc, char* argv[])
 				};
 			if (gate=="AND")
 			{
-//				cout << "procesar gate AND:" << idGate << endl;
 				And* a = new And();
 				g = a;
 				while (it!=tokens.end())
 				{
 					map<string,Gate*>::iterator s = mapa.find(*it);
-					
-					
-					
 					Gate* gh = s->second;
 					a->addGate(gh);
 					it++;
@@ -346,7 +312,6 @@ int main(int argc, char* argv[])
 				while (it!=tokens.end())
 				{
 					map<string,Gate*>::iterator s = mapa.find(*it);
-		
 					Gate* gh = s->second;
 					a->addGate(gh);
 					it++;
@@ -361,8 +326,6 @@ int main(int argc, char* argv[])
 				while (it!=tokens.end())
 				{
 					map<string,Gate*>::iterator s = mapa.find(*it);
-//					cout << "*it:" << *it << endl;
-//					cout << "elementO:" << s->first << endl;
 					Gate* gh = s->second;
 					a->addGate(gh);
 					it++;
@@ -376,8 +339,6 @@ int main(int argc, char* argv[])
 				while (it!=tokens.end())
 				{
 					map<string,Gate*>::iterator s = mapa.find(*it);
-//					cout << "*it:" << *it << endl;
-//					cout << "elementO:" << s->first << endl;
 					Gate* gh = s->second;
 					a->addGate(gh);
 					it++;
@@ -391,8 +352,6 @@ int main(int argc, char* argv[])
 				while (it!=tokens.end())
 				{
 					map<string,Gate*>::iterator s = mapa.find(*it);
-//					cout << "*it:" << *it << endl;
-//					cout << "elementO:" << s->first << endl;
 					Gate* gh = s->second;
 					a->addGate(gh);
 					it++;
@@ -401,21 +360,14 @@ int main(int argc, char* argv[])
 			
 			if (gate=="NOT")
 			{
-
-//				cout << "NOt:" << endl;
 				map<string,Gate*>::iterator s = mapa.find(*it);
 				Gate* gh = s->second;
-//				cout << "gh:" << gh->convertir() << endl;
 				g = new Not(gh);
 			};
 			
-							
-//			cout << "inserto en mapa:" << endl;
-//			cout << g->convertir() << endl;
 			cout << "idGate:" << idGate <<",direccion:" << g << endl;
 			mapa.insert(pair<string,Gate*>(idGate,g));
 			}
-		
 		};
 		
 	
@@ -435,9 +387,5 @@ int main(int argc, char* argv[])
 		fsalida << "." << endl;
 		fsalida.close();
 		itouts++;
-		
 		}; 
-
-	
-	
 }
