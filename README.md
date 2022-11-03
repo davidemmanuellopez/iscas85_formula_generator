@@ -2,7 +2,9 @@
 A C++ utility for generate propositional non-clausal fórmulas, using ISCAS85 circuit specification.
 
     Copyright (C) <2022  David Emmanuel Lopez
+    Contact: david.emmanuel.lopez@gmail.com
     http://www.github.com/davidemmanuellopez/iscas85_formula_generator
+ 
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
