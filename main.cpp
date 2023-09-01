@@ -23,12 +23,11 @@
 #include <list>
 #include <map>
 #include <set>
-#include <stdlib.h>
+#include <algorithm>
 
 using namespace std;
 class Gate;
 static set<Gate*> pisados;
-
 map<string,Gate*> mapa;
 static int prof =0;
 
@@ -57,48 +56,42 @@ list<string> split(string input, string delimiter)
 class Gate
 {
 	public:
-		virtual void convertir(ofstream &fsalida)
+		virtual void convert(ofstream &fsalida)
 		{};
 	};
 
-class GateRec: public Gate
+class GateRecursive: public Gate
 {
-	public:
-	virtual void addGate(Gate g)
+
+public:
+	virtual void addGate(Gate* g)
 	{
+        terms.push_back(g);
 		};
+protected:
+    list<Gate*> terms;
 };
 
-class Var: public Gate
+class Input: public Gate
 {
 	private:
-	string var;
+	string id;
 	public:
-	
-		Var(string v)
+		Input(string v)
 		{
-			var=v;
+            id=v;
 			};
             
-		void convertir(ofstream &fsalida)
+		void convert(ofstream &output_file)
 		{
-			fsalida << "p"<< var;
+			output_file << "p" << id;
 			};
 	};
 
-class Or: public GateRec
+class Or: public GateRecursive
 {
-
-	private:
-		list<Gate*> ors;
-			
 	public:
-	void addGate(Gate* g)
-	{
-		ors.push_back(g);
-		};
-		
-	void convertir(ofstream &fsalida)
+	void convert(ofstream &fsalida)
 	{
 		if (pisados.find(this)==pisados.end())
 		{
@@ -107,16 +100,16 @@ class Or: public GateRec
 			} 
 				
 		string salida;
-		list<Gate*>::iterator it = ors.begin();
+		list<Gate*>::iterator it = terms.begin();
 		Gate* g = *it;
-	    g->convertir(fsalida);
+        g->convert(fsalida);
 		it++;
-		while (it!=ors.end())
+		while (it!=terms.end())
 		{
 			g = *it;
 			fsalida << " v "; 
 			prof++;
-			g->convertir(fsalida);
+            g->convert(fsalida);
 			prof--;
 			it++;
 			};
@@ -126,86 +119,72 @@ class Or: public GateRec
 
 class NOr: public Or
 {
-	void convertir(ofstream &fsalida)
+	void convert(ofstream &fsalida)
 		{
 			fsalida << "-(";
-			Or::convertir(fsalida);
+            Or::convert(fsalida);
 			fsalida << ")";
 		}
 	};
 
-class And: public GateRec
+class And: public GateRecursive
 {
-	public:	
-	list<Gate*> ands;
-	void addGate(Gate* g)
+public:
+	void convert(ofstream &fsalida)
 	{
-		ands.push_back(g);
-		};
-	
-	void convertir(ofstream &fsalida)
-	{
-				if (pisados.find(this)==pisados.end())
+        if (pisados.find(this)==pisados.end())
 		{
 			cout << "pisados: " << pisados.size() << "/" << mapa.size() << endl;
 			pisados.insert(this);
 			} else
 		
 		string salida;
-		list<Gate*>::iterator it = ands.begin();
+		list<Gate*>::iterator it = terms.begin();
 		Gate* g = *it;
 		fsalida << "(";
-		g->convertir(fsalida);
+        g->convert(fsalida);
 		fsalida << ")";
 		it++;
-		while (it!=ands.end())
+		while (it!=terms.end())
 		{
 			g = *it;
 			fsalida << " & (";
 			prof++;
-			g->convertir(fsalida);
+            g->convert(fsalida);
 			fsalida << ")";
 			it++;
 			};
-	
 	};
 	
 };
 	
 class NAnd: public And
 {
-	void convertir(ofstream &fsalida)
+	void convert(ofstream &fsalida)
 	{
-			fsalida << "-(";
-			And::convertir(fsalida);
-			fsalida << ")";
+        fsalida << "-(";
+        And::convert(fsalida);
+        fsalida << ")";
 	}
 };
 
-class XOr: public GateRec
+class XOr: public GateRecursive
 {
-	public:
-	list<Gate*> terms;
-	void addGate(Gate* g)
-	{
-		terms.push_back(g);
-		};
-		
-	void convertir(ofstream &fsalida)
+
+	void convert(ofstream &fsalida)
 	{
 		
 		Gate* g1 = *terms.begin();
 		Gate* g2  = *(terms.begin()++);
 		
 		fsalida << "(";
-		g1->convertir(fsalida);
-		
+        g1->convert(fsalida);
 		fsalida << ") & -(";
-		g2->convertir(fsalida);
+        g2->convert(fsalida);
 		fsalida << ") v -(";
-		g1->convertir(fsalida);
+        g1->convert(fsalida);
 		fsalida << ") & (";
-		g2->convertir(fsalida);
+        g2->convert(fsalida);
 		fsalida << ")"; 
 
 	};
@@ -221,7 +200,8 @@ class Not: public Gate
 		{
 			this->g=g;
 			};
-	void convertir(ofstream &fsalida)
+
+	void convert(ofstream &fsalida)
 	{
 		if (pisados.find(this)==pisados.end())
 		{
@@ -231,65 +211,66 @@ class Not: public Gate
 			
 		fsalida << "-(";
 		prof++;
-		g->convertir(fsalida);
+        g->convert(fsalida);
 		prof--;
 		fsalida << ")";
 	};
 
 };
 
-
 int main(int argc, char* argv[])
 {
-	string entrada(argv[1]);
-	string salida(argv[2]);
+	string input_filename(argv[1]);
+	string output_path(argv[2]);
 
-	ifstream fentrada(entrada.c_str());
+	ifstream input_file(input_filename.c_str());
 	
-	string linea;
+	string line;
 	list<string> outputs;
 	int coutputs=0;
-	while (getline(fentrada,linea))
+    // Process the lines
+	while (getline(input_file, line))
 	{
-		
-		if (linea[0]=='I')
+        // remove spaces from the line
+        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+        if (line[0] == 'I') // is Input specification
 		{
-			int i = linea.find_first_of('(');
-			string id = linea.substr(i+1,linea.length()-i-2);
-			Gate* g = new Var(id);
+			int i = line.find_first_of('(');
+			string id = line.substr(i + 1, line.length() - i - 2); // get id
+
+			Gate* g = new Input(id);
 			mapa.insert(pair<string,Gate*>(id,g));
 			} 
 			
-		if (linea[0]=='O') // es output
+		if (line[0] == 'O') // es output
 		{
-			int p = linea.find_first_of('(')+1;
-			int j = linea.find_first_of(')');
-			string idGate = linea.substr(p,j-p);
+			int p = line.find_first_of('(') + 1;
+			int j = line.find_first_of(')');
+			string idGate = line.substr(p, j - p);
 			cout << "OUTPUT:" << idGate << endl;
 			outputs.push_back(idGate);
 			coutputs++;
 			} else
 		//es gate
 		{
-			int p = linea.find_first_of('=');
-			string idGate = linea.substr(0,p);
+			int p = line.find_first_of('=');
+			string idGate = line.substr(0, p);
 			p=p+1;
-			int j = linea.find_first_of('(');
-			string gate = linea.substr(p,j-(p));
+			int j = line.find_first_of('(');
+			string gate = line.substr(p, j - (p));
 			p=j+1;
-			j=linea.length()-1;
+			j= line.length() - 1;
 			
-			string recorte = linea.substr(p,j-p);
+			string recorte = line.substr(p, j - p);
 			list<string> tokens = split(recorte,",");
 			
 			list<string>::iterator it = tokens.begin();
 			Gate* g;
+
 			if (gate=="BUFF")
-			{
-				cout << "es buff" << endl;
+            {
 				string a = *it;
-				cout << a << endl;
-				map<string,Gate*>::iterator s = mapa.find(a);
+				map<string,Gate*>::iterator s = mapa.find(*it);
 				g = s->second;
 				};
 			if (gate=="AND")
@@ -364,8 +345,6 @@ int main(int argc, char* argv[])
 				Gate* gh = s->second;
 				g = new Not(gh);
 			};
-			
-			cout << "idGate:" << idGate <<",direccion:" << g << endl;
 			mapa.insert(pair<string,Gate*>(idGate,g));
 			}
 		};
@@ -376,16 +355,14 @@ int main(int argc, char* argv[])
 	{
 		string out = *itouts;
 		
-		//crear archivo y escribir formula de salida (invocacion a convertir)
-		ofstream fsalida(salida.c_str()+out);
+		//crear archivo y escribir formula de output_path (invocacion a convert)
+		ofstream output_file(output_path.c_str() + out);
 			
 			map<string,Gate*>::iterator s = mapa.find(out);
 			Gate* g = s->second;
-			cout << "out:" << out << endl;
-			g->convertir(fsalida);
-			
-		fsalida << "." << endl;
-		fsalida.close();
+        g->convert(output_file);
+		output_file << "." << endl;
+		output_file.close();
 		itouts++;
 		}; 
 }
