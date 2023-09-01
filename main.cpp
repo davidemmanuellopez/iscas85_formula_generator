@@ -29,7 +29,7 @@ using namespace std;
 class Gate;
 static set<Gate*> pisados;
 map<string,Gate*> mapa;
-static int prof =0;
+static int deep=0;
 
 string reverseGet(map<string,Gate*> mapa, Gate* g)
 {
@@ -56,18 +56,13 @@ list<string> split(string input, string delimiter)
 class Gate
 {
 	public:
-		virtual void convert(ofstream &fsalida)
-		{};
+		virtual void convert(ofstream &output_file) {};
 	};
 
 class GateRecursive: public Gate
 {
-
 public:
-	virtual void addGate(Gate* g)
-	{
-        terms.push_back(g);
-		};
+	virtual void addGate(Gate* g) {terms.push_back(g);};
 protected:
     list<Gate*> terms;
 };
@@ -77,15 +72,8 @@ class Input: public Gate
 	private:
 	string id;
 	public:
-		Input(string v)
-		{
-            id=v;
-			};
-            
-		void convert(ofstream &output_file)
-		{
-			output_file << "p" << id;
-			};
+		Input(string v):id(v){};
+		void convert(ofstream &output_file) { output_file << "p" << id; };
 	};
 
 class Or: public GateRecursive
@@ -108,9 +96,9 @@ class Or: public GateRecursive
 		{
 			g = *it;
 			fsalida << " v "; 
-			prof++;
+			deep++;
             g->convert(fsalida);
-			prof--;
+			deep--;
 			it++;
 			};
 	};
@@ -149,7 +137,7 @@ public:
 		{
 			g = *it;
 			fsalida << " & (";
-			prof++;
+			deep++;
             g->convert(fsalida);
 			fsalida << ")";
 			it++;
@@ -210,9 +198,9 @@ class Not: public Gate
 			} 
 			
 		fsalida << "-(";
-		prof++;
+		deep++;
         g->convert(fsalida);
-		prof--;
+		deep--;
 		fsalida << ")";
 	};
 
